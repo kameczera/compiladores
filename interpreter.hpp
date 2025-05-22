@@ -24,10 +24,37 @@ void interpret(vector<pair<token_type, string>> tokens) {
                 break;
             }
             case ADD: {
-                int val1 = s.top(); s.pop();
-                int val2 = s.top(); s.pop();
-                s.push(val1 + val2);
+                int top = s.top(); s.pop();
+                int bottom = s.top(); s.pop();
+                s.push(top + bottom);
                 break;
+            }
+            case SUB: {
+                int top = s.top(); s.pop();
+                int bottom = s.top(); s.pop();
+                s.push(top - bottom);
+            }
+            case MUL: {
+                int top = s.top(); s.pop();
+                int bottom = s.top(); s.pop();
+                s.push(top * bottom);
+            }
+            case DIV: {
+                int top = s.top(); s.pop();
+                int bottom = s.top(); s.pop();
+                s.push(top / bottom);
+            }
+            case MOD: {
+                int top = s.top(); s.pop();
+                int bottom = s.top(); s.pop();
+                s.push(top % bottom);
+            }
+            case NEG: {
+                int top = s.top(); s.pop();
+                s.push(top * -1);
+            }
+            case STORE: {
+                
             }
             case PRINT: {
                 int val = s.top();
