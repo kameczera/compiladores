@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "scanner.hpp"
+#include "interpreter.hpp"
 
 using namespace std;
 
@@ -18,9 +19,9 @@ int main(int argc, char* argv[]) {
     ifstream file(file_name);
 
     if (file.is_open()) {
-        vector<pair<string, token_type>> tokens = scan_tokens(file);
-        print_tokens();
-        parser(tokens);
+        vector<pair<token_type, string>> tokens = scan_tokens(file);
+        // print_tokens();
+        interpret(tokens);
         file.close();
     } else {
         cout << "Erro ao abrir o arquivo: " << file_name << endl;
