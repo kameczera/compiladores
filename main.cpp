@@ -7,6 +7,8 @@
 #include "scanner.hpp"
 #include "interpreter.hpp"
 
+#define DEBUG 0
+
 using namespace std;
 
 int main(int argc, char* argv[]) {
@@ -20,9 +22,12 @@ int main(int argc, char* argv[]) {
 
     if (file.is_open()) {
         vector<pair<token_type, string>> tokens = scan_tokens(file);
-        // print_tokens();
-        interpret(tokens);
         file.close();
+        if(DEBUG) {
+            print_tokens();
+            print_labels();
+        }
+        interpret(tokens);
     } else {
         cout << "Erro ao abrir o arquivo: " << file_name << endl;
         return 1;

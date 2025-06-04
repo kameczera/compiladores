@@ -20,6 +20,8 @@ enum token_type {
     CALL, RET, PRINT, READ,
 
     ID,
+
+    LABEL, END,
 };
 
 map<string, token_type> token_dict = {
