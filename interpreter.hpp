@@ -73,7 +73,7 @@ void interpret(vector<pair<token_type, string>> tokens) {
             }
             case STORE: {
                 int top = s.top(); s.pop();
-                vars.insert({tokens[pc].second, top});
+                vars[tokens[pc].second] = top;
                 break;
             }
             case LOAD: {

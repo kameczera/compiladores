@@ -28,6 +28,7 @@ map<string, token_type> token_dict = {
     {"PUSH", token_type::PUSH},
     {"POP", token_type::POP},
     {"ADD", token_type::ADD},
+    {"SUB", token_type::SUB},
     {"MUL", token_type::MUL},
     {"DIV", token_type::DIV},
     {"MOD", token_type::MOD},
