@@ -12,6 +12,22 @@ int pc = 0;
 stack<int> s;
 map<string, int> vars;
 
+void print_stack()
+{
+    if (s.empty()) return;
+    int x = s.top();
+    s.pop();
+    print_stack();
+    cout << x << " ";
+    s.push(x);
+}
+
+void print_vars() {
+    for (const auto& par : vars) {
+        std::cout << "Chave: " << par.first << ", Valor: " << par.second << std::endl;
+    }
+}
+
 bool is_number(const std::string& s) {
     if (s.empty()) return false;
     for (char c : s) {
@@ -39,31 +55,31 @@ void interpret(vector<pair<token_type, string>> tokens) {
             case ADD: {
                 int top = s.top(); s.pop();
                 int bottom = s.top(); s.pop();
-                s.push(top + bottom);
+                s.push(bottom + top);
                 break;
             }
             case SUB: {
                 int top = s.top(); s.pop();
                 int bottom = s.top(); s.pop();
-                s.push(top - bottom);
+                s.push(bottom - top);
                 break;
             }
             case MUL: {
                 int top = s.top(); s.pop();
                 int bottom = s.top(); s.pop();
-                s.push(top * bottom);
+                s.push(bottom * top);
                 break;
             }
             case DIV: {
                 int top = s.top(); s.pop();
                 int bottom = s.top(); s.pop();
-                s.push(top / bottom);
+                s.push(bottom / top);
                 break;
             }
             case MOD: {
                 int top = s.top(); s.pop();
                 int bottom = s.top(); s.pop();
-                s.push(top % bottom);
+                s.push(bottom % top);
                 break;
             }
             case NEG: {
@@ -77,8 +93,10 @@ void interpret(vector<pair<token_type, string>> tokens) {
                 break;
             }
             case LOAD: {
-                if(vars[tokens[pc].second]) s.push(vars[tokens[pc].second]);
-                else {
+                auto it = vars.find(tokens[pc].second);
+                if (it != vars.end()) {
+                    s.push(it->second);
+                } else {
                     // TODO
                 }
                 break;
