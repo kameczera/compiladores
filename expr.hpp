@@ -27,14 +27,22 @@ class push : public expr {
 
 class pop : public expr {
     public:
-        pop() {}
+        pop(expr* out) : out(out) {}
+        expr* out;
 };
 
-class add : public expr {
+class binary : public expr {
     public:
+        int type;
         expr* top;
         expr* bottom;
-        add(expr* top, expr* bottom) : top(top), bottom(bottom) {}
+        binary(int type, expr* top, expr* bottom) : type(type), top(top), bottom(bottom) {}
+};
+
+class store : public expr {
+    public:
+        expr* stored;
+        store(expr* stored) : stored(stored) {}
 };
 
 #endif
