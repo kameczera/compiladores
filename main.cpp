@@ -6,6 +6,7 @@
 
 #include "scanner.hpp"
 #include "interpreter.hpp"
+#include "parser.hpp"
 
 #define DEBUG 0
 

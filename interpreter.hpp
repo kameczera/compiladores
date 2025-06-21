@@ -6,6 +6,8 @@
 #include <vector>
 #include <stack>
 #include "token.hpp"
+#include "compiler.hpp"
+
 using namespace std;
 
 int pc = 0;
@@ -25,19 +27,6 @@ void print_stack()
 void print_vars() {
     for (const auto& par : vars) {
         std::cout << "Chave: " << par.first << ", Valor: " << par.second << std::endl;
-    }
-}
-
-bool is_number(const std::string& s) {
-    if (s.empty()) return false;
-    for (char c : s) {
-        if (!isdigit(c) && c != '-' && c != '+') return false;
-    }
-    try {
-        std::stoi(s);
-        return true;
-    } catch (...) {
-        return false;
     }
 }
 
@@ -97,7 +86,7 @@ void interpret(vector<pair<token_type, string>> tokens) {
                 if (it != vars.end()) {
                     s.push(it->second);
                 } else {
-                    // TODO
+                    // TODO: verificacao de erros (se precisar)
                 }
                 break;
             }

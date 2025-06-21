@@ -45,4 +45,29 @@ class store : public expr {
         store(expr* stored) : stored(stored) {}
 };
 
+class jmp : public expr {
+    public:
+        expr* jump;
+        
+        jmp() {}
+        jmp(expr* jump) : jump(jump) {}
+};
+
+class jz : public expr {
+    public:
+        int jump_idx;
+        expr* jump_z;
+        expr* jump_nz;
+
+        jz() {}
+        jz(expr* jump_z, expr* jump_nz) : jump_z(jump_z), jump_nz(jump_nz) {}
+};
+
+class label : public expr {
+    public:
+        expr* pointer;
+        label() {}
+        label(expr* pointer) : pointer(pointer) {}
+}
+
 #endif

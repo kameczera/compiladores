@@ -19,8 +19,6 @@ enum token_type {
 
     CALL, RET, PRINT, READ,
 
-    ID,
-
     LABEL, END,
 };
 

@@ -24,6 +24,7 @@ void scan_line(string line) {
             break;
         }
         if(line[last] == ':') {
+            tokens.push_back({LABEL, ""});
             labels.insert({token, tokens.size()});
             break;
         }
