@@ -68,6 +68,6 @@ class label : public expr {
         expr* pointer;
         label() {}
         label(expr* pointer) : pointer(pointer) {}
-}
+};
 
 #endif
