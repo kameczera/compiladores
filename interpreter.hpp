@@ -127,7 +127,7 @@ void interpret(vector<pair<token_type, string>> tokens) {
                 break;
             }
             case HALT: {
-                // ???
+                goto fim_do_loop;
                 break;
             }
             case EQ: {
@@ -195,6 +195,7 @@ void interpret(vector<pair<token_type, string>> tokens) {
         }
         pc++;
     }
+    fim_do_loop:
 }
 
 
