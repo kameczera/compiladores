@@ -173,15 +173,26 @@ void interpret(vector<pair<token_type, string>> tokens) {
                 break;
             }
             case CALL: {
-                // TODO
+                int func;
+                s.push(pc+1);
+                if (is_number(tokens[pc].second)) {
+                    func = std::stoi(tokens[pc].second);
+                } else {
+                    func = labels[tokens[pc].second];
+                }
+                //Gambiarra?
+                pc = func - 1;
                 break;
             }
             case RET: {
-                // TODO
+                pc = s.top(); s.pop();
                 break;
             }
             case READ: {
-                // TODO
+                int input;
+                cout << "Digite um valor: ";
+                cin >> input;
+                s.push(input);
                 break;
             }
             case PRINT: {
@@ -196,6 +207,7 @@ void interpret(vector<pair<token_type, string>> tokens) {
         pc++;
     }
     fim_do_loop:
+    return;
 }
 
 
