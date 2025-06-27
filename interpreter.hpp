@@ -32,6 +32,7 @@ void print_vars() {
 
 void interpret(vector<pair<token_type, string>> tokens) {
     while(pc < tokens.size()){
+        cout << "PC: " << pc+1 << ", Token: " << tokens[pc].first << ", Value: " << tokens[pc].second << " valor2: " << labels[tokens[pc].second] << "\n";
         switch(tokens[pc].first) {
             case PUSH: {
                 s.push(stoi(tokens[pc].second));
@@ -96,8 +97,6 @@ void interpret(vector<pair<token_type, string>> tokens) {
                 } else {
                     pc = labels[tokens[pc].second];
                 }
-                // Gambiarra
-                pc--;
                 break;
             }
             case JZ: {
@@ -108,8 +107,6 @@ void interpret(vector<pair<token_type, string>> tokens) {
                     } else {
                         pc = labels[tokens[pc].second];
                     }
-                    // Gambiarra
-                    pc--;
                 }
                 break;
             }
@@ -121,12 +118,13 @@ void interpret(vector<pair<token_type, string>> tokens) {
                     } else {
                         pc = labels[tokens[pc].second];
                     }
-                    // Gambiarra
-                    pc--;
                 }
                 break;
             }
             case HALT: {
+                cout << "Fim da execucao\n";
+                print_stack();
+                print_vars();
                 goto fim_do_loop;
                 break;
             }
@@ -174,14 +172,14 @@ void interpret(vector<pair<token_type, string>> tokens) {
             }
             case CALL: {
                 int func;
-                s.push(pc+1);
+                s.push(pc);
+                cout << "\n-------------" << pc << "---------\n";
                 if (is_number(tokens[pc].second)) {
                     func = std::stoi(tokens[pc].second);
                 } else {
                     func = labels[tokens[pc].second];
                 }
-                //Gambiarra?
-                pc = func - 1;
+                pc = func;
                 break;
             }
             case RET: {
