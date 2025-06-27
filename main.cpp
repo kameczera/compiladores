@@ -6,9 +6,8 @@
 
 #include "scanner.hpp"
 #include "interpreter.hpp"
-#include "parser.hpp"
 
-#define DEBUG 1
+#define DEBUG 0
 
 using namespace std;
 

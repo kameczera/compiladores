@@ -32,7 +32,6 @@ void print_vars() {
 
 void interpret(vector<pair<token_type, string>> tokens) {
     while(pc < tokens.size()){
-        cout << "PC: " << pc+1 << ", Token: " << tokens[pc].first << ", Value: " << tokens[pc].second << " valor2: " << labels[tokens[pc].second] << "\n";
         switch(tokens[pc].first) {
             case PUSH: {
                 s.push(stoi(tokens[pc].second));
@@ -122,7 +121,6 @@ void interpret(vector<pair<token_type, string>> tokens) {
                 break;
             }
             case HALT: {
-                cout << "Fim da execucao\n";
                 print_stack();
                 print_vars();
                 goto fim_do_loop;
@@ -173,7 +171,6 @@ void interpret(vector<pair<token_type, string>> tokens) {
             case CALL: {
                 int func;
                 s.push(pc);
-                cout << "\n-------------" << pc << "---------\n";
                 if (is_number(tokens[pc].second)) {
                     func = std::stoi(tokens[pc].second);
                 } else {
@@ -188,7 +185,6 @@ void interpret(vector<pair<token_type, string>> tokens) {
             }
             case READ: {
                 int input;
-                cout << "Digite um valor: ";
                 cin >> input;
                 s.push(input);
                 break;

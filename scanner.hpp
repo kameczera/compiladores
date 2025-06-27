@@ -5,7 +5,6 @@
 #include <map>
 #include <vector>
 #include <fstream>
-#include "error.hpp"
 #include "token.hpp"
 
 using namespace std;
