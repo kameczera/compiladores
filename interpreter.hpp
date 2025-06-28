@@ -39,64 +39,117 @@ void print_vars() {
     }
 }
 
+// Função auxiliar para imprimir o nome do token (necessária para o log de otimização)
+string token_type_to_string(token_type t) {
+    switch (t) {
+        case PUSH: return "PUSH"; case POP: return "POP";
+        case ADD: return "ADD"; case SUB: return "SUB";
+        case MUL: return "MUL"; case DIV: return "DIV";
+        case MOD: return "MOD"; case NEG: return "NEG";
+        case STORE: return "STORE"; case LOAD: return "LOAD";
+        case JMP: return "JMP"; case JZ: return "JZ";
+        case JNZ: return "JNZ"; case HALT: return "HALT";
+        case EQ: return "EQ"; case NEQ: return "NEQ";
+        case LT: return "LT"; case GT: return "GT";
+        case LE: return "LE"; case GE: return "GE";
+        case CALL: return "CALL"; case RET: return "RET";
+        case PRINT: return "PRINT"; case READ: return "READ";
+        case LABEL: return "LABEL";
+        case END: return "END";
+        default: return "UNKNOWN";
+    }
+}
+
+// Sua função optimize_tokens, agora com logs de otimização
 vector<pair<token_type, string>> optimize_tokens(const vector<pair<token_type, string>>& original_tokens) 
 {
-    vector<pair<token_type, string>> optimized_tokens;
-    int i = 0;
-    while (i < original_tokens.size()) 
-    {
-        bool pattern_found = false;
+    vector<pair<token_type, string>> current_tokens = original_tokens;
+    int pass_count = 1;
 
-        if (i + 2 < original_tokens.size()) 
+    cout << "--- Iniciando Otimizacao Multi-Passo ---" << endl;
+
+    while (true) {
+        int size_before = current_tokens.size();
+        vector<pair<token_type, string>> optimized_pass;
+        int i = 0;
+        bool pass_made_changes = false;
+
+        while (i < current_tokens.size()) 
         {
-            if (original_tokens[i].first == PUSH && is_number(original_tokens[i].second) &&
-                original_tokens[i+1].first == PUSH && is_number(original_tokens[i+1].second))
+            // Tenta aplicar o Padrão 1 (3 instruções)
+            if (i + 2 < current_tokens.size() &&
+                current_tokens[i].first == PUSH && is_number(current_tokens[i].second) &&
+                current_tokens[i+1].first == PUSH && is_number(current_tokens[i+1].second))
             {
-                int num1 = stoi(original_tokens[i].second);
-                int num2 = stoi(original_tokens[i+1].second);
-                token_type op = original_tokens[i+2].first;
+                token_type op = current_tokens[i+2].first;
                 int result;
+                bool pattern_matched = false;
 
-                if (op == ADD) { result = num1 + num2; pattern_found = true; }
-                else if (op == SUB) { result = num1 - num2; pattern_found = true; }
-                else if (op == MUL) { result = num1 * num2; pattern_found = true; }
-                else if (op == DIV && num2 != 0) { result = num1 / num2; pattern_found = true; }
-                else if (op == GT) { result = (num1 > num2) ? 1 : 0; pattern_found = true; }
-                else if (op == LT) { result = (num1 < num2) ? 1 : 0; pattern_found = true; }
-                else if (op == EQ) { result = (num1 == num2) ? 1 : 0; pattern_found = true; }
+                if (op == ADD) { pattern_matched = true; }
+                else if (op == SUB) { pattern_matched = true; }
+                else if (op == MUL) { pattern_matched = true; }
+                else if (op == DIV && stoi(current_tokens[i+1].second) != 0) { pattern_matched = true; }
+                else if (op == GT) { pattern_matched = true; }
+                else if (op == LT) { pattern_matched = true; }
+                else if (op == EQ) { pattern_matched = true; }
+                
+                if (pattern_matched) {
+                    pass_made_changes = true;
+                    int num1 = stoi(current_tokens[i].second);
+                    int num2 = stoi(current_tokens[i+1].second);
+                    if (op == ADD) result = num1 + num2;
+                    else if (op == SUB) result = num1 - num2;
+                    else if (op == MUL) result = num1 * num2;
+                    else if (op == DIV) result = num1 / num2;
+                    else if (op == GT) result = (num1 > num2) ? 1 : 0;
+                    else if (op == LT) result = (num1 < num2) ? 1 : 0;
+                    else if (op == EQ) result = (num1 == num2) ? 1 : 0;
+                    
+                    // --- LOG DE OTIMIZAÇÃO ADICIONADO ---
+                    cout << "  [Passo " << pass_count << "] Otimizando: "
+                         << "PUSH " << num1 << ", PUSH " << num2 << ", " << token_type_to_string(op)
+                         << "  ->  PUSH " << result << endl;
 
-                if(pattern_found) 
-                {
-                    optimized_tokens.push_back({PUSH, to_string(result)});
+                    optimized_pass.push_back({PUSH, to_string(result)});
                     i += 3;
+                    continue;
                 }
             }
-        }
-
-        // Se o padrão acima não foi encontrado, tenta outros
-        if (!pattern_found) 
-        {
-            // Padrão 2: PUSH num, NEG
-            if (i + 1 < original_tokens.size() &&
-                original_tokens[i].first == PUSH && is_number(original_tokens[i].second) &&
-                original_tokens[i+1].first == NEG)
+            
+            // Tenta o Padrão 2 (2 instruções)
+            if (i + 1 < current_tokens.size() &&
+                current_tokens[i].first == PUSH && is_number(current_tokens[i].second) &&
+                current_tokens[i+1].first == NEG)
             {
-                int num = stoi(original_tokens[i].second);
+                pass_made_changes = true;
+                int num = stoi(current_tokens[i].second);
                 int result = -num;
-                optimized_tokens.push_back({PUSH, to_string(result)});
+
+                // --- LOG DE OTIMIZAÇÃO ADICIONADO ---
+                cout << "  [Passo " << pass_count << "] Otimizando: "
+                     << "PUSH " << num << ", NEG" 
+                     << "  ->  PUSH " << result << endl;
+
+                optimized_pass.push_back({PUSH, to_string(result)});
                 i += 2;
-                pattern_found = true;
+                continue;
             }
-        }
-        
-        // Se nenhum padrão de otimização foi encontrado, apenas copia a instrução
-        if (!pattern_found) 
-        {
-            optimized_tokens.push_back(original_tokens[i]);
+
+            // Se nenhum padrão foi encontrado, apenas copia
+            optimized_pass.push_back(current_tokens[i]);
             i++;
         }
+
+        if (!pass_made_changes) {
+            break; // Se nenhuma mudança foi feita nesta passada, termina.
+        }
+        
+        current_tokens = optimized_pass;
+        pass_count++;
     }
-    return optimized_tokens;
+
+    cout << "--- Otimizacao Finalizada ---" << endl;
+    return current_tokens;
 }
 
 
