@@ -10,9 +10,18 @@
 
 using namespace std;
 
+
+// 2. PROTÓTIPOS DE TODAS AS FUNÇÕES DO ARQUIVO
+// Isso garante que o compilador conheça todas as funções antes de usá-las.
+void interpret(vector<pair<token_type, string>> tokens);
+vector<pair<token_type, string>> optimize_tokens(const vector<pair<token_type, string>>& original_tokens);
+void print_stack();
+void print_vars();
+
 int pc = 0;
 stack<int> s;
 map<string, int> vars;
+stack<int> call_stack; // <-- ADICIONE ESTA NOVA PILHA
 
 void print_stack()
 {
@@ -30,9 +39,78 @@ void print_vars() {
     }
 }
 
-void interpret(vector<pair<token_type, string>> tokens) {
-    while(pc < tokens.size()){
-        switch(tokens[pc].first) {
+vector<pair<token_type, string>> optimize_tokens(const vector<pair<token_type, string>>& original_tokens) 
+{
+    vector<pair<token_type, string>> optimized_tokens;
+    int i = 0;
+    while (i < original_tokens.size()) 
+    {
+        bool pattern_found = false;
+
+        if (i + 2 < original_tokens.size()) 
+        {
+            if (original_tokens[i].first == PUSH && is_number(original_tokens[i].second) &&
+                original_tokens[i+1].first == PUSH && is_number(original_tokens[i+1].second))
+            {
+                int num1 = stoi(original_tokens[i].second);
+                int num2 = stoi(original_tokens[i+1].second);
+                token_type op = original_tokens[i+2].first;
+                int result;
+
+                if (op == ADD) { result = num1 + num2; pattern_found = true; }
+                else if (op == SUB) { result = num1 - num2; pattern_found = true; }
+                else if (op == MUL) { result = num1 * num2; pattern_found = true; }
+                else if (op == DIV && num2 != 0) { result = num1 / num2; pattern_found = true; }
+                else if (op == GT) { result = (num1 > num2) ? 1 : 0; pattern_found = true; }
+                else if (op == LT) { result = (num1 < num2) ? 1 : 0; pattern_found = true; }
+                else if (op == EQ) { result = (num1 == num2) ? 1 : 0; pattern_found = true; }
+
+                if(pattern_found) 
+                {
+                    optimized_tokens.push_back({PUSH, to_string(result)});
+                    i += 3;
+                }
+            }
+        }
+
+        // Se o padrão acima não foi encontrado, tenta outros
+        if (!pattern_found) 
+        {
+            // Padrão 2: PUSH num, NEG
+            if (i + 1 < original_tokens.size() &&
+                original_tokens[i].first == PUSH && is_number(original_tokens[i].second) &&
+                original_tokens[i+1].first == NEG)
+            {
+                int num = stoi(original_tokens[i].second);
+                int result = -num;
+                optimized_tokens.push_back({PUSH, to_string(result)});
+                i += 2;
+                pattern_found = true;
+            }
+        }
+        
+        // Se nenhum padrão de otimização foi encontrado, apenas copia a instrução
+        if (!pattern_found) 
+        {
+            optimized_tokens.push_back(original_tokens[i]);
+            i++;
+        }
+    }
+    return optimized_tokens;
+}
+
+
+void interpret(vector<pair<token_type, string>> tokens) 
+{
+    pc = 0; // Garante que a execução sempre comece do início
+    
+   while(!s.empty()) s.pop();
+    vars.clear();
+    while(!call_stack.empty()) call_stack.pop();
+    while(pc < tokens.size())
+    {
+        switch(tokens[pc].first) 
+        {
             case PUSH: {
                 s.push(stoi(tokens[pc].second));
                 break;
@@ -96,7 +174,7 @@ void interpret(vector<pair<token_type, string>> tokens) {
                 } else {
                     pc = labels[tokens[pc].second];
                 }
-                break;
+                continue; 
             }
             case JZ: {
                 int top = s.top(); s.pop();
@@ -106,8 +184,9 @@ void interpret(vector<pair<token_type, string>> tokens) {
                     } else {
                         pc = labels[tokens[pc].second];
                     }
+                    continue; 
                 }
-                break;
+                break; 
             }
             case JNZ: {
                 int top = s.top(); s.pop();
@@ -117,14 +196,14 @@ void interpret(vector<pair<token_type, string>> tokens) {
                     } else {
                         pc = labels[tokens[pc].second];
                     }
+                    continue; 
                 }
-                break;
+                break; 
             }
             case HALT: {
                 print_stack();
                 print_vars();
                 goto fim_do_loop;
-                break;
             }
             case EQ: {
                 int top = s.top(); s.pop();
@@ -169,19 +248,17 @@ void interpret(vector<pair<token_type, string>> tokens) {
                 break;
             }
             case CALL: {
-                int func;
-                s.push(pc);
+                call_stack.push(pc + 1); //Usa a call_stack implementada
                 if (is_number(tokens[pc].second)) {
-                    func = std::stoi(tokens[pc].second);
+                    pc = std::stoi(tokens[pc].second);
                 } else {
-                    func = labels[tokens[pc].second];
+                    pc = labels[tokens[pc].second];
                 }
-                pc = func;
-                break;
+                continue; 
             }
             case RET: {
-                pc = s.top(); s.pop();
-                break;
+                pc = call_stack.top(); call_stack.pop(); //Usa a call_stack implementada
+                continue;
             }
             case READ: {
                 int input;
