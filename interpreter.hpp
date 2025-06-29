@@ -21,7 +21,6 @@ void print_vars();
 int pc = 0;
 stack<int> s;
 map<string, int> vars;
-stack<int> call_stack; // <-- ADICIONE ESTA NOVA PILHA
 
 void print_stack()
 {
@@ -39,7 +38,7 @@ void print_vars() {
     }
 }
 
-// Função auxiliar para imprimir o nome do token (necessária para o log de otimização)
+// Função auxiliar para imprimir o nome do token
 string token_type_to_string(token_type t) {
     switch (t) {
         case PUSH: return "PUSH"; case POP: return "POP";
@@ -159,7 +158,6 @@ void interpret(vector<pair<token_type, string>> tokens)
     
    while(!s.empty()) s.pop();
     vars.clear();
-    while(!call_stack.empty()) call_stack.pop();
     while(pc < tokens.size())
     {
         switch(tokens[pc].first) 
@@ -301,7 +299,7 @@ void interpret(vector<pair<token_type, string>> tokens)
                 break;
             }
             case CALL: {
-                call_stack.push(pc + 1); //Usa a call_stack implementada
+                s.push(pc + 1); // Usa a pilha principal s
                 if (is_number(tokens[pc].second)) {
                     pc = std::stoi(tokens[pc].second);
                 } else {
@@ -310,7 +308,7 @@ void interpret(vector<pair<token_type, string>> tokens)
                 continue; 
             }
             case RET: {
-                pc = call_stack.top(); call_stack.pop(); //Usa a call_stack implementada
+                pc = s.top(); s.pop(); // Usa a pilha principal s
                 continue;
             }
             case READ: {
