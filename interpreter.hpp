@@ -163,10 +163,18 @@ void interpret(vector<pair<token_type, string>> tokens)
         switch(tokens[pc].first) 
         {
             case PUSH: {
+                if(s.size() >= 1024) {
+                    cout << "Erro: Pilha overflow!" << endl;
+                    goto fim_do_loop; // Ou trate o erro de outra forma
+                }
                 s.push(stoi(tokens[pc].second));
                 break;
             }
             case POP: {
+                if (s.empty()) {
+                    cout << "Erro: Pilha vazia ao tentar POP!" << endl;
+                    goto fim_do_loop; // Ou trate o erro de outra forma
+                }
                 s.pop();
                 break;
             }
@@ -191,6 +199,11 @@ void interpret(vector<pair<token_type, string>> tokens)
             case DIV: {
                 int top = s.top(); s.pop();
                 int bottom = s.top(); s.pop();
+                if (top==0) {
+                    cout << "Erro: Divisão por zero!" << endl;
+                    goto fim_do_loop; // Ou trate o erro de outra forma
+                }
+                
                 s.push(bottom / top);
                 break;
             }
@@ -221,7 +234,13 @@ void interpret(vector<pair<token_type, string>> tokens)
             }
             case JMP: {
                 if (is_number(tokens[pc].second)) {
-                    pc = std::stoi(tokens[pc].second);
+                    if (std::stoi(tokens[pc].second) < tokens.size() && std::stoi(tokens[pc].second) >= 0)
+                        {
+                            pc = std::stoi(tokens[pc].second);
+                        }else{
+                            cout << "Erro: Índice de salto inválido!" << endl;
+                            goto fim_do_loop; // Ou trate o erro de outra forma
+                        }
                 } else {
                     pc = labels[tokens[pc].second];
                 }
@@ -231,8 +250,15 @@ void interpret(vector<pair<token_type, string>> tokens)
                 int top = s.top(); s.pop();
                 if(top == 0) {
                     if (is_number(tokens[pc].second)) {
-                        pc = std::stoi(tokens[pc].second);
+                        if (std::stoi(tokens[pc].second) < tokens.size() && std::stoi(tokens[pc].second) >= 0)
+                        {
+                            pc = std::stoi(tokens[pc].second);
+                        }else{
+                            cout << "Erro: Índice de salto inválido!" << endl;
+                            goto fim_do_loop; // Ou trate o erro de outra forma
+                        }
                     } else {
+                        
                         pc = labels[tokens[pc].second];
                     }
                     continue; 
@@ -243,7 +269,13 @@ void interpret(vector<pair<token_type, string>> tokens)
                 int top = s.top(); s.pop();
                 if(top != 0) {
                     if (is_number(tokens[pc].second)) {
-                        pc = std::stoi(tokens[pc].second);
+                        if (std::stoi(tokens[pc].second) < tokens.size() && std::stoi(tokens[pc].second) >= 0)
+                        {
+                            pc = std::stoi(tokens[pc].second);
+                        }else{
+                            cout << "Erro: Índice de salto inválido!" << endl;
+                            goto fim_do_loop; // Ou trate o erro de outra forma
+                        }
                     } else {
                         pc = labels[tokens[pc].second];
                     }
@@ -301,7 +333,13 @@ void interpret(vector<pair<token_type, string>> tokens)
             case CALL: {
                 s.push(pc + 1); // Usa a pilha principal s
                 if (is_number(tokens[pc].second)) {
-                    pc = std::stoi(tokens[pc].second);
+                    if (std::stoi(tokens[pc].second) < tokens.size() && std::stoi(tokens[pc].second) >= 0)
+                        {
+                            pc = std::stoi(tokens[pc].second);
+                        }else{
+                            cout << "Erro: Índice de salto inválido!" << endl;
+                            goto fim_do_loop; // Ou trate o erro de outra forma
+                        }
                 } else {
                     pc = labels[tokens[pc].second];
                 }
@@ -318,6 +356,12 @@ void interpret(vector<pair<token_type, string>> tokens)
                 break;
             }
             case PRINT: {
+                if (s.empty())
+                {   
+                    cout << "Erro: Pilha vazia ao tentar PRINT!" << endl;
+                    goto fim_do_loop; // Se a pilha estiver vazia, não imprime nada
+                }
+                
                 int val = s.top();
                 cout << val << "\n";
                 break;
